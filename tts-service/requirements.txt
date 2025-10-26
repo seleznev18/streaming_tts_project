@@ -1,0 +1,10 @@
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+pydantic-settings==2.6.1
+numpy==2.1.2
+pytest==8.3.3
+httpx==0.27.2
+structlog==24.2.0
+python-multipart==0.0.20
+piper-tts==1.2.0
+piper-phonemize-fix==1.2.1

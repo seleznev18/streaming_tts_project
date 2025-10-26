@@ -1,0 +1,86 @@
+version: "3.9"
+
+networks:
+  speech_net:
+    driver: bridge
+
+volumes:
+  models_asr:
+  models_tts:
+  logs:
+
+services:
+  asr-service:
+    build: ./asr-service
+    env_file: .env
+    ports:
+      - "${ASR_PORT}:${ASR_PORT}"
+    networks:
+      - speech_net
+    volumes:
+      - ./asr-service/models:/asr-service/models
+      - logs:/var/log/app
+    restart: unless-stopped
+
+  tts-service:
+    build: ./tts-service
+    env_file: .env
+    ports:
+      - "${TTS_PORT}:${TTS_PORT}"
+    networks:
+      - speech_net
+    volumes:
+      - ./tts-service/models:/tts-service/models
+      - logs:/var/log/app
+    restart: unless-stopped
+
+  gateway:
+    build: ./gateway
+    env_file: .env
+    ports:
+      - "${GATEWAY_PORT}:${GATEWAY_PORT}"
+    networks:
+      - speech_net
+    depends_on:
+      - asr-service
+      - tts-service
+    volumes:
+      - logs:/var/log/app
+    restart: unless-stopped
+
+  asr-tests:
+    build: ./asr-service
+    env_file: .env
+    container_name: asr-tests
+    command: ["pytest", "-v"]
+    depends_on:
+      - asr-service
+    volumes:
+      - ./asr-service/app:/app/app
+      - ./asr-service/tests:/app/tests
+      - ./asr-service/models:/app/models
+
+  tts-tests:
+    build: ./tts-service
+    env_file: .env
+    container_name: tts-tests
+    command: ["pytest", "-v"]
+    depends_on:
+      - tts-service
+    volumes:
+      - ./tts-service/app:/app/app
+      - ./tts-service/tests:/app/tests
+      - ./tts-service/models:/app/models
+
+  gateway-tests:
+    build: ./gateway
+    env_file: .env
+    container_name: gateway-tests
+    command: ["pytest", "-v"]
+    depends_on:
+      - gateway
+      - asr-service
+      - tts-service
+    volumes:
+      - ./gateway/app:/app/app
+      - ./gateway/tests:/app/tests
