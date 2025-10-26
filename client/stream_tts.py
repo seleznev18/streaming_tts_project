@@ -13,7 +13,7 @@ base_dir = Path(__file__).parent.parent
 dotenv_path = base_dir / ".env"
 load_dotenv(dotenv_path)
 
-TTS_WS_URL = os.getenv("TTS_WS_URL")
+TTS_WS_URL = os.getenv("TTS_WS_URL_LOCAL")
 OUT_WAV = Path(__file__).parent / "out.wav"
 SAMPLE_RATE = int(os.getenv("TTS_SAMPLE_RATE", 22050))
 
